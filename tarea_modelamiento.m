@@ -179,8 +179,12 @@ fprintf('\n--- Información de la Respuesta al Escalón ---\n');
 fprintf('  Tiempo de subida  (10%%→90%%): %.4f s\n', info.RiseTime);
 fprintf('  Tiempo de asentamiento:       %.4f s\n', info.SettlingTime);
 fprintf('  Sobrepico:                    %.2f %%\n', info.Overshoot);
-fprintf('  Tiempo de pico:               %.4f s\n', info.PeakTime);
-fprintf('  Valor pico:                   %.4f V\n\n', info.Peak);
+if ~isnan(info.PeakTime)
+    fprintf('  Tiempo de pico:               %.4f s\n', info.PeakTime);
+    fprintf('  Valor pico:                   %.4f V\n\n', info.Peak);
+else
+    fprintf('  Tiempo de pico:               N/A (sistema sobreamortiguado)\n\n');
+end
 
 % --- Figura 2: Diagrama de Bode ---
 figure(2);

@@ -107,10 +107,14 @@ for i = 1:length(zeta_values)
     den_i = [1, R/L, 1/(L*C)];
     H_i   = tf(num_i, den_i);
     info  = stepinfo(H_i);
-    fprintf('%-8.2f %-8.3f %-10.2f %-12.2f %-10.2f %-10.2f\n', ...
-            R, zeta_values(i), ...
-            info.PeakTime*1000, info.Overshoot, ...
-            info.SettlingTime*1000, info.RiseTime*1000);
+    if isnan(info.PeakTime)
+        tp_str = '    N/A   ';
+    else
+        tp_str = sprintf('%-10.2f', info.PeakTime*1000);
+    end
+    fprintf('%-8.2f %-8.3f %s %-12.2f %-10.2f %-10.2f\n', ...
+            R, zeta_values(i), tp_str, ...
+            info.Overshoot, info.SettlingTime*1000, info.RiseTime*1000);
 end
 
 fprintf('\nAnálisis completado.\n');
