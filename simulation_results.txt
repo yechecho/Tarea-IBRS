@@ -1,0 +1,215 @@
+VSC Grid-Following Control System - Simulation Results & Expected Behavior
+==========================================================================
+Model: VSC_GridFollowing_Control.slx
+Date Generated: 2026-04-05
+MATLAB Version: 2024b
+Simulation Duration: 0.5 s
+Solver: ode23tb (Variable-step, stiff)
+
+System Parameters
+-----------------
+Grid Frequency         : 60 Hz
+Grid Voltage (L-L RMS) : 220 VAC
+Grid Phase Voltage Peak: 179.63 V
+DC-link Voltage        : 400 VDC
+Filter Inductance      : 15 mH
+Filter Resistance      : 0.1 Ω
+PWM Frequency          : 5 kHz
+Control Sampling Time  : 10 µs
+Rated Power            : 10 kW
+
+Controller Gains
+----------------
+PLL:            Kp = 100,  Ki = 5000
+Current Loop:   Kp = 10,   Ki = 100  (Id and Iq)
+Droop Control:  Kp_droop = 0.01,  Kq_droop = 0.01
+
+==========================================================================
+EXPECTED SIMULATION BEHAVIOR
+==========================================================================
+
+─────────────────────────────────────────────────────────
+PHASE 1 — Initialization (t = 0 to 0.05 s)
+─────────────────────────────────────────────────────────
+Description:
+  System starts from rest. The PLL begins tracking the grid angle.
+  Converter output voltages are near zero until the PLL locks.
+
+Expected Observations:
+
+  Grid Voltages (Va, Vb, Vc):
+    • Sinusoidal, 60 Hz, amplitude ≈ 179.6 V (peak)
+    • Balanced three-phase, 120° phase shift
+    • Remain stable throughout simulation
+
+  PLL Output (Theta):
+    • Starts at 0 rad, ramps toward grid angle
+    • Transient oscillation as the PLL acquires lock
+    • PLL natural frequency: ω_n ≈ 70.7 rad/s (11.25 Hz)
+    • PLL damping ratio: ζ ≈ 0.707 (critically damped)
+
+  PLL Output (Omega):
+    • Initial value: 376.99 rad/s (2π × 60)
+    • Transient variation ±5–10 rad/s during acquisition
+    • Settles to 376.99 rad/s within ≈ 50 ms
+
+  Filter Currents (Ia, Ib, Ic):
+    • Initially zero (or very small)
+    • Start flowing as converter begins modulating
+
+─────────────────────────────────────────────────────────
+PHASE 2 — PLL Lock-on (t ≈ 0.05 to 0.10 s)
+─────────────────────────────────────────────────────────
+Description:
+  PLL achieves synchronization with the grid. Theta tracks the
+  grid voltage angle. Current control begins regulating Id and Iq.
+
+Expected Observations:
+
+  PLL Angle (Theta):
+    • Smoothly follows grid angle (linear ramp at 60 Hz)
+    • Bounded in [0, 2π] due to modulo operation
+    • Phase error < 1° after lock
+
+  DQ Voltages (Vd, Vq):
+    • Vd → ≈ 179.6 V (peak phase voltage)
+    • Vq → ≈ 0 V (condition for PLL lock)
+    • Small ripple at 6× grid frequency (360 Hz)
+
+  DQ Currents (Id, Iq):
+    • Follow references set by Droop Control
+    • With P_ref = 0, Q_ref = 0: Id_ref ≈ 0, Iq_ref ≈ 0
+    • Settling time: < 50 ms (inner loop bandwidth ≈ 667 rad/s)
+
+─────────────────────────────────────────────────────────
+PHASE 3 — Steady-State Operation (t = 0.10 to 0.50 s)
+─────────────────────────────────────────────────────────
+Description:
+  System operates in steady state. With default references
+  P_ref = 0 W, Q_ref = 0 VAR (zero-power injection).
+
+Expected Observations:
+
+  Grid Currents (Ia, Ib, Ic):
+    • Small residual currents (reactive charging of filter L)
+    • Amplitude < 1 A for zero power reference
+    • Balanced and sinusoidal at 60 Hz
+
+  DQ Frame Currents:
+    • Id ≈ 0 A  (no active power)
+    • Iq ≈ 0 A  (no reactive power)
+    • Ripple amplitude < 0.5 A (due to PWM harmonics)
+
+  Active Power (P):
+    • ≈ 0 W in steady state (P_ref = 0)
+    • Ripple at 6× fundamental = 360 Hz, amplitude < 50 W
+    • Low-pass filtered at 5 Hz bandwidth
+
+  Reactive Power (Q):
+    • ≈ 0 VAR in steady state (Q_ref = 0)
+    • Similar ripple characteristics to P
+
+  Converter Output Voltages (Va, Vb, Vc):
+    • PWM-modulated, switching at 5 kHz
+    • Fundamental component ≈ grid voltage after filter
+    • THD of voltage after filter < 5%
+
+  Gate Signals (6 switches):
+    • Complementary pairs (upper/lower per phase)
+    • Switching frequency: 5000 Hz
+    • Dead-time not modeled (educational simplification)
+
+─────────────────────────────────────────────────────────
+NUMERICAL PERFORMANCE TARGETS
+─────────────────────────────────────────────────────────
+
+  PLL lock time                  : < 100 ms
+  Current control bandwidth      : ≈ 667 rad/s (106 Hz)
+  Current tracking error (ss)    : < 2%
+  THD of output current (ss)     : < 5% (with 15 mH filter @ 5 kHz PWM)
+  Phase angle error after lock   : < 1°
+  DC-link voltage (fixed, ideal) : 400 VDC
+  Simulation run time (0.5 s)    : < 60 s on modern PC
+
+─────────────────────────────────────────────────────────
+SCOPE CHANNELS GUIDE
+─────────────────────────────────────────────────────────
+
+  Scope 1 — Grid Voltages:
+    Ch1: Va [V]  |  Ch2: Vb [V]  |  Ch3: Vc [V]
+    Expected: ±179.6 V sinusoidal, 60 Hz, balanced
+
+  Scope 2 — Filter Currents:
+    Ch1: Ia [A]  |  Ch2: Ib [A]  |  Ch3: Ic [A]
+    Expected at P=0: < ±1 A; at P=10 kW: ±32 A peak
+
+  Scope 3 — DQ Voltages:
+    Ch1: Vd [V]  |  Ch2: Vq [V]
+    Expected: Vd ≈ 179.6 V, Vq ≈ 0 V (after PLL lock)
+
+  Scope 4 — DQ Currents:
+    Ch1: Id_meas [A]  |  Ch2: Iq_meas [A]
+    Ch3: Id_ref  [A]  |  Ch4: Iq_ref  [A]
+    Expected: measured tracks reference, < 2% ss error
+
+  Scope 5 — PLL:
+    Ch1: Theta [rad]  |  Ch2: Omega [rad/s]
+    Expected: Theta ramps 0→2π at 60 Hz, Omega = 376.99 rad/s
+
+  Scope 6 — Power:
+    Ch1: P [W]  |  Ch2: Q [VAR]
+    Expected at default: P ≈ 0 W, Q ≈ 0 VAR
+
+─────────────────────────────────────────────────────────
+TESTING SCENARIOS
+─────────────────────────────────────────────────────────
+
+Scenario A — Zero Power Reference (Default):
+  P_ref = 0 W, Q_ref = 0 VAR
+  Expected: Converter idles, minimal current injection
+
+Scenario B — Rated Active Power Injection:
+  Modify in parameters.m: P_ref = 10000;
+  Expected: Id_ref ≈ 32 A (peak), Ia ≈ 32 A sinusoidal
+
+Scenario C — Reactive Power Support:
+  Modify in parameters.m: Q_ref = 5000;
+  Expected: Iq_ref ≈ 16 A (peak), 90° lagging current
+
+Scenario D — PLL Stress Test (off-nominal frequency):
+  Modify V_grid_peak: multiply Vc amplitude by 0.9 (unbalance)
+  Expected: PLL still locks within 150 ms
+
+─────────────────────────────────────────────────────────
+TUNING GUIDELINES
+─────────────────────────────────────────────────────────
+
+Current Controller (Inner Loop):
+  • Bandwidth target: ω_cc = R/L = 6.67 rad/s natural → set higher
+  • Kp_id = ω_cc * L_filter → for ω_cc = 667 rad/s: Kp ≈ 10 ✓
+  • Ki_id = ω_cc * R_filter → Ki ≈ 67 (use 100 for margin) ✓
+
+PLL:
+  • Desired lock time < 100 ms → ω_n > 50 rad/s
+  • ω_n = sqrt(Ki_pll) → Ki = 5000 → ω_n ≈ 70.7 rad/s ✓
+  • Critically damped: Kp = 2*ζ*ω_n → Kp = 2*0.707*70.7 ≈ 100 ✓
+
+Droop Control (Outer Loop):
+  • Rule: outer loop bandwidth < inner loop bandwidth / 10
+  • Target: outer loop ≈ 10–50 rad/s
+  • Kp_droop = 0.01: P error of 1 kW → ΔId_ref = 10 A ✓
+
+==========================================================================
+KNOWN LIMITATIONS (Educational Model)
+==========================================================================
+1. Dead-time between complementary switches not modeled
+2. DC-link modeled as ideal voltage source (no capacitor dynamics)
+3. No thermal or overcurrent protection
+4. Switch losses not included (ideal semiconductor)
+5. No anti-windup on integrators (add for production use)
+6. No grid impedance model (ideal voltage source)
+7. Three-phase unbalance not fully handled in SRF-PLL
+
+==========================================================================
+END OF SIMULATION RESULTS
+==========================================================================
