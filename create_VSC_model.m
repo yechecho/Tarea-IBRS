@@ -265,6 +265,10 @@ add_block('simulink/Math Operations/Sum', [drp '/ErrQ']); set_param([drp '/ErrQ'
 add_block('simulink/Math Operations/Gain', [drp '/KpD']); set_param([drp '/KpD'], 'Gain','Kp_droop', 'Position', blkp(7,1,80,28));
 add_block('simulink/Math Operations/Gain', [drp '/KqD']); set_param([drp '/KqD'], 'Gain','Kq_droop', 'Position', blkp(7,4,80,28));
 
+% Maximum current reference = 1.5× the rated peak phase current.
+% At rated power P_rated with unity PF:  Id_peak = (2/3)*P_rated/V_grid_peak
+%   (factor 2/3 from amplitude-invariant Park transform).
+% The 1.5 safety margin allows transient overcurrent before clipping.
 I_sat_val = 1.5 * (2/3) * P_rated / V_grid_peak;
 add_block('simulink/Discontinuities/Saturation', [drp '/SatId']); set_param([drp '/SatId'], 'UpperLimit',num2str(I_sat_val), 'LowerLimit',num2str(-I_sat_val), 'Position',blkp(8,1,80,28));
 add_block('simulink/Discontinuities/Saturation', [drp '/SatIq']); set_param([drp '/SatIq'], 'UpperLimit',num2str(I_sat_val), 'LowerLimit',num2str(-I_sat_val), 'Position',blkp(8,4,80,28));

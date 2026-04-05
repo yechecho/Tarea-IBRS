@@ -68,6 +68,8 @@ tau_filter = L_filter / R_filter;   % Filter time constant [s]
 % Per-unit base values
 S_base = P_rated;                   % Base apparent power [VA]
 V_base = V_grid_ph;                 % Base voltage (phase) [V]
+% In the amplitude-invariant DQ frame, three-phase power is
+%   P = 1.5 * Vd * Id   →   I_base = P_rated / (1.5 * V_base)
 I_base = S_base / (1.5 * V_base);  % Base current (DQ frame) [A]
 Z_base = V_base / I_base;           % Base impedance [Ohm]
 L_base = Z_base / omega_grid;      % Base inductance [H]
