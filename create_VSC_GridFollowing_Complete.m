@@ -350,7 +350,7 @@ add_block('simulink/Ports & Subsystems/In1', [fm '/vgq'],    'Position',[20,135,
 add_block('simulink/Ports & Subsystems/In1', [fm '/omega'],  'Position',[20,175,50,195],'Port','5');
 
 %% Ecuacion eje d: L*did/dt = vd* - vgd - R*id + omega*L*iq
-%% Sum_d ports: (+)vd* (--)vgd (--)R*id (+)omega*L*iq  -> '+--+'
+%% Sum_d ports: 1(+)vd*  2(-)vgd  3(-)R*id  4(+)omega*L*iq  -> '+--+'
 add_block('simulink/Math Operations/Product', [fm '/oL_iq'], 'Position',[70,185,105,215]);
 add_block('simulink/Math Operations/Gain',    [fm '/L_iq'],  'Gain','L_filter','Position',[115,185,155,215]);
 add_block('simulink/Math Operations/Add',     [fm '/Sum_d'], 'Inputs','+--+','Position',[195,10,220,55]);
@@ -359,7 +359,7 @@ add_block('simulink/Continuous/Integrator',   [fm '/Int_id'],'InitialCondition',
 add_block('simulink/Math Operations/Gain',    [fm '/R_id'],   'Gain','R_filter','Position',[120,55,155,80]);
 
 %% Ecuacion eje q: L*diq/dt = vq* - vgq - R*iq - omega*L*id
-%% Sum_q ports: (+)vq* (--)vgq (--)R*iq (--)omega*L*id -> '+---'
+%% Sum_q ports: 1(+)vq*  2(-)vgq  3(-)R*iq  4(-)omega*L*id  -> '+---'
 add_block('simulink/Math Operations/Product', [fm '/oL_id'], 'Position',[70,235,105,265]);
 add_block('simulink/Math Operations/Gain',    [fm '/L_id'],  'Gain','L_filter','Position',[115,235,155,265]);
 add_block('simulink/Math Operations/Add',     [fm '/Sum_q'], 'Inputs','+---','Position',[195,110,220,155]);
@@ -666,7 +666,7 @@ try
         end
     end
 catch ME
-    fprintf('  [AVISO] No se pudo configurar MATLAB Functions via API: %s\n', ME.message);
+    fprintf('  [AVISO] No se pudo configurar MATLAB Functions via Stateflow API: %s\n', ME.message);
     fprintf('          Configure manualmente copiando los codigos del README.\n');
 end
 
