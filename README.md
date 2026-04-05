@@ -8,8 +8,8 @@ Este repositorio contiene los archivos de simulación para la **Tarea de Simulac
 
 | Archivo | Descripción |
 |---------|-------------|
-| `VSC_Grid_Connected.slx` | Modelo Simulink original (VSC Simscape con filtro L, red 25kV/60Hz) |
-| `VSCm_Grid_Connected.m` | **Parámetros del sistema** (PLL, control corriente, droop, referencias) |
+| `VSC_Grid_Connected.slx` | Modelo Simulink original (VSC Simscape con filtro L, red 25kV/60Hz, 500KVA) |
+| `VSCm_Grid_Connected.m` | **Parámetros del sistema** (PLL, control corriente, droop, referencias). El modelo nuevo usa V_grid=220V/60Hz. |
 | `create_VSC_GridFollowing_Complete.m` | **Script que crea el modelo completo** de control vectorial grid-following |
 | `Tarea2_IBRs.pdf` | Enunciado de la tarea |
 
@@ -141,8 +141,8 @@ end
 ```matlab
 function Xdq = fcn(Xabc, theta)
 % Transformación de Park: abc -> dq
-% Xd =  2/3*(Xa*cos(t) + Xb*cos(t-2pi/3) + Xc*cos(t+2pi/3))
-% Xq = -2/3*(Xa*sin(t) + Xb*sin(t-2pi/3) + Xc*sin(t+2pi/3))
+% Xd =  2/3*(Xa*cos(theta) + Xb*cos(theta-2pi/3) + Xc*cos(theta+2pi/3))
+% Xq = -2/3*(Xa*sin(theta) + Xb*sin(theta-2pi/3) + Xc*sin(theta+2pi/3))
 Xa = Xabc(1); Xb = Xabc(2); Xc = Xabc(3);
 Xd =  2/3*(Xa*cos(theta) + ...
            Xb*cos(theta-2*pi/3) + ...
